@@ -1,0 +1,26 @@
+
+prefix = "/latest"
+host = "http://rancher-metadata"
+repeat = 66
+
+
+[[set]]
+template = "/etc/rancher-meta-template/nginx.tmpl"
+dest = "/etc/nginx/sites-available/nginx.conf"
+
+[set.check]
+cmd = "nginx"
+args = ["-t"]
+
+[set.run]
+cmd = "nginx"
+args = ["-s", "reload"]
+
+
+[[set]]
+template = "/etc/rancher-meta-template/nginx1.tmpl"
+dest = "/etc/nginx/sites-available/nginx1.conf"
+
+[[set]]
+template = "/etc/rancher-meta-template/nginx2.tmpl"
+dest = "/etc/nginx/sites-available/nginx2.conf"
