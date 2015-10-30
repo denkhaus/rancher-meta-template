@@ -34,9 +34,9 @@ func newFuncMap() map[string]interface{} {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func where(m []interface{}, sliceKey string, sliceVal interface{}) ([]interface{}, error) {
+func where(in interface{}, sliceKey string, sliceVal interface{}) ([]interface{}, error) {
 	ret := make([]interface{}, 0)
-	if m == nil {
+	if in == nil {
 		return ret, errors.New("where: source is nil")
 	}
 	if sliceKey == "" {
@@ -45,6 +45,8 @@ func where(m []interface{}, sliceKey string, sliceVal interface{}) ([]interface{
 	if sliceVal == nil {
 		return ret, errors.New("where: value is nil")
 	}
+
+	m := in.([]interface{})
 
 	for _, str := range m {
 		st := structs.New(str)
