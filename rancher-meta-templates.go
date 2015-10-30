@@ -51,15 +51,15 @@ func createTemplateCtx(meta *metadata.Client) (interface{}, error) {
 		return nil, errors.Annotate(err, "get containers")
 	}
 
-	hosts, err := meta.GetHosts()
-	if err != nil {
-		return nil, errors.Annotate(err, "get hosts")
-	}
+	//	hosts, err := meta.GetHosts()
+	//	if err != nil {
+	//		return nil, errors.Annotate(err, "get hosts")
+	//	}
 
 	ctx := map[string]interface{}{
 		"Services":   services,
 		"Containers": containers,
-		"Hosts":      hosts,
+		//	"Hosts":      hosts,
 	}
 
 	return ctx, nil
