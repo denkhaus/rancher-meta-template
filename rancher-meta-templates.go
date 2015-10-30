@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"text/template"
 	"time"
 
@@ -11,6 +12,10 @@ import (
 
 	"github.com/juju/errors"
 	"github.com/rancher/go-rancher-metadata/metadata"
+)
+
+const (
+	DEFAULT_TEMPLATE_DIR = "/etc/rancher-meta-template/templates"
 )
 
 //////////////////////////////////////////////////////////////////////////////
@@ -21,6 +26,16 @@ func printError(err error) {
 //////////////////////////////////////////////////////////////////////////////
 func printInfo(format string, args ...interface{}) {
 	fmt.Printf("rancher-meta-template::info: %s\n", fmt.Sprintf(format, args...))
+}
+
+//////////////////////////////////////////////////////////////////////////////
+func printDebug(format string, args ...interface{}) {
+	fmt.Printf("rancher-meta-template::debug: %s\n", fmt.Sprintf(format, args...))
+}
+
+//////////////////////////////////////////////////////////////////////////////
+func printWarning(format string, args ...interface{}) {
+	fmt.Printf("rancher-meta-template::warn: %s\n", fmt.Sprintf(format, args...))
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -64,6 +79,12 @@ func appendCommandPipe(cmd Command, pipes []pipe.Pipe) []pipe.Pipe {
 
 //////////////////////////////////////////////////////////////////////////////////
 func processTemplateSet(templ *template.Template, meta *metadata.Client, set TemplateSet) error {
+
+	if _, err := os.Stat(set.TemplatePath); err != nil {
+		printWarning("template path %q is not available: skip", set.TemplatePath)
+		return nil
+	}
+
 	buf, err := ioutil.ReadFile(set.TemplatePath)
 	if err != nil {
 		return errors.Annotate(err, "read template file")
@@ -112,6 +133,14 @@ func processTemplates(cnf *Config) error {
 	printInfo("connect rancher metadata host: %q", cnf.Host)
 	tmpl := template.New("rancher-proxy").Funcs(newFuncMap())
 	version := "init"
+
+	//expand template paths
+	printDebug("sanitize template paths")
+	for idx, set := range cnf.Sets {
+		if !path.IsAbs(set.TemplatePath) {
+			cnf.Sets[idx].TemplatePath = path.Join(DEFAULT_TEMPLATE_DIR, set.TemplatePath)
+		}
+	}
 
 	for {
 		newVersion, err := meta.GetVersion()

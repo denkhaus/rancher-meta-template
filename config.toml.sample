@@ -1,12 +1,12 @@
 
-prefix = "/latest"
 host = "http://rancher-metadata"
 repeat = 66
 
+################################################################################
 
 [[set]]
 name = "template 1"
-template = "/etc/rancher-meta-template/nginx.tmpl"
+template = "nginx.tmpl"
 dest = "/etc/nginx/sites-available/nginx.conf"
 
 [set.check]
@@ -17,13 +17,9 @@ args = ["-t"]
 cmd = "nginx"
 args = ["-s", "reload"]
 
+################################################################################
 
 [[set]]
 name = "template 2"
-template = "/etc/rancher-meta-template/nginx1.tmpl"
+template = "nginx1.tmpl"
 dest = "/etc/nginx/sites-available/nginx1.conf"
-
-[[set]]
-name = "template 3"
-template = "/etc/rancher-meta-template/nginx2.tmpl"
-dest = "/etc/nginx/sites-available/nginx2.conf"
