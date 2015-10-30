@@ -5,8 +5,10 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -33,6 +35,28 @@ func newFuncMap() map[string]interface{} {
 	return m
 }
 
+// ToSliceE casts an empty interface to a []interface{}.
+func ToSliceE(i interface{}) ([]interface{}, error) {
+	printDebug("ToSliceE called on type:", reflect.TypeOf(i))
+
+	var s []interface{}
+
+	switch v := i.(type) {
+	case []interface{}:
+		for _, u := range v {
+			s = append(s, u)
+		}
+		return s, nil
+	case []map[string]interface{}:
+		for _, u := range v {
+			s = append(s, u)
+		}
+		return s, nil
+	default:
+		return s, fmt.Errorf("Unable to Cast %#v of type %v to []interface{}", i, reflect.TypeOf(i))
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 func where(in interface{}, sliceKey string, sliceVal interface{}) ([]interface{}, error) {
 	ret := make([]interface{}, 0)
@@ -46,11 +70,17 @@ func where(in interface{}, sliceKey string, sliceVal interface{}) ([]interface{}
 		return ret, errors.New("where: value is nil")
 	}
 
-	m := in.([]interface{})
+	m, err := ToSliceE(in)
+	if err != nil {
+		return ret, err
+	}
 
 	for _, str := range m {
 		st := structs.New(str)
-		field := st.Field(sliceKey)
+		field, ok := st.FieldOk(sliceKey)
+		if !ok {
+			return ret, errors.New("where: input is no []interface{} value")
+		}
 		if field.Value() == sliceVal {
 			ret = append(ret, str)
 		}
