@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 
-	"bitbucket.org/denkhaus/mirsvc/util"
 	"github.com/BurntSushi/toml"
 	"github.com/juju/errors"
 )
@@ -32,8 +31,6 @@ func (cnf *Config) Print() {
 	printInfo("check every %d seconds", cnf.Repeat)
 	printInfo("metadata host: %s", cnf.Host)
 	printInfo(" %d template sets found", len(cnf.Sets))
-
-	util.Inspect(cnf)
 }
 
 //////////////////////////////////////////////////////////////////////////////
