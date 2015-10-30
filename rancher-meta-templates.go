@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
-	"strconv"
 	"text/template"
 	"time"
 
@@ -15,84 +13,63 @@ import (
 	"github.com/rancher/go-rancher-metadata/metadata"
 )
 
-const (
-	PROXY_TEMPLATE_PATH = "/etc/rancher-proxy/templates/nginx.tmpl"
-	PROXY_CONFIG_PATH   = "/etc/nginx/sites-enabled/rancher-proxy.conf"
-)
-
 //////////////////////////////////////////////////////////////////////////////
 func printError(err error) {
-	fmt.Printf("rancher-proxy::error: %s\n", errors.ErrorStack(err))
+	fmt.Printf("rancher-meta-template::error: %s\n", errors.ErrorStack(err))
 }
 
 //////////////////////////////////////////////////////////////////////////////
 func printInfo(format string, args ...interface{}) {
-	fmt.Printf("rancher-proxy::info: %s\n", fmt.Sprintf(format, args...))
+	fmt.Printf("rancher-meta-template::info: %s\n", fmt.Sprintf(format, args...))
 }
 
 //////////////////////////////////////////////////////////////////////////////
-func createTemplateCtx(meta *metadata.Client) (map[string][]interface{}, error) {
+func createTemplateCtx(meta *metadata.Client) (interface{}, error) {
 
-	data, err := meta.GetServices()
+	services, err := meta.GetServices()
 	if err != nil {
 		return nil, errors.Annotate(err, "get services")
 	}
 
-	tmplData := make(map[string][]interface{})
-	for _, service := range data {
-		labels := service.Labels
-
-		for _, value := range labels {
-
-			port, err := strconv.Atoi(value)
-			if err != nil {
-				return nil, errors.Annotate(err, "convert port from metadata")
-			}
-
-			for _, containerName := range service.Containers {
-				containers, err := meta.GetContainers()
-				if err != nil {
-					return nil, errors.Annotate(err, "get containers")
-				}
-
-				for _, container := range containers {
-					if container.Name != containerName {
-						continue
-					}
-
-					d := map[string]interface{}{
-						"ip":            container.PrimaryIp,
-						"port":          port,
-						"containerName": containerName,
-					}
-
-					serviceName := service.Name
-					printInfo("expose service %q:%d in container %q",
-						serviceName, port, containerName)
-
-					if _, ok := tmplData[serviceName]; ok {
-						tmplData[serviceName] =
-							append(tmplData[serviceName], d)
-					} else {
-						dat := []interface{}{d}
-						tmplData[serviceName] = dat
-					}
-				}
-			}
-		}
+	containers, err := meta.GetContainers()
+	if err != nil {
+		return nil, errors.Annotate(err, "get containers")
 	}
 
-	return tmplData, nil
+	hosts, err := meta.GetHosts()
+	if err != nil {
+		return nil, errors.Annotate(err, "get hosts")
+	}
+
+	ctx := map[string]interface{}{
+		"Services":   services,
+		"Containers": containers,
+		"Hosts":      hosts,
+	}
+
+	return ctx, nil
 }
 
-//////////////////////////////////////////////////////////////////////////////
-func processTemplateSet(meta *metadata.Client, set TemplateSet) error {
+//////////////////////////////////////////////////////////////////////////////////
+func appendCommandPipe(cmd Command, pipes []pipe.Pipe) []pipe.Pipe {
+	if cmd.Cmd != "" {
+		if cmd.Args != nil {
+			return append(pipes, pipe.Exec(cmd.Cmd, cmd.Args...))
+		}
+		return append(pipes, pipe.Exec(cmd.Cmd))
+	}
+
+	return pipes
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+func processTemplateSet(templ *template.Template, meta *metadata.Client, set TemplateSet) error {
 	buf, err := ioutil.ReadFile(set.TemplatePath)
 	if err != nil {
 		return errors.Annotate(err, "read template file")
 	}
 
-	tmpl, err := template.New("rancher-proxy").Parse(string(buf))
+	tmpl, err := templ.Parse(string(buf))
 	if err != nil {
 		return errors.Annotate(err, "parse template")
 	}
@@ -112,28 +89,28 @@ func processTemplateSet(meta *metadata.Client, set TemplateSet) error {
 	}
 	f.Close()
 
-	printInfo("restart nginx")
-	script := pipe.Script(
-		pipe.Exec("nginx", "-t"),
-		pipe.Exec("nginx", "-s", "reload"),
-	)
+	printInfo("process check & run")
 
+	pipes := make([]pipe.Pipe, 0)
+	pipes = appendCommandPipe(set.Check, pipes)
+	pipes = appendCommandPipe(set.Run, pipes)
+
+	script := pipe.Script(pipes...)
 	output, err := pipe.CombinedOutput(script)
 	if err != nil {
 		printInfo(string(output))
-		return errors.Annotate(err, "restart nginx")
+		return errors.Annotate(err, "check & run")
 	}
 
 	return nil
 }
 
-//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 func processTemplates(cnf *Config) error {
-	host := path.Join(cnf.Host, cnf.Prefix)
-	meta := metadata.NewClient(host)
+	meta := metadata.NewClient(cnf.Host)
 
-	printInfo("connect rancher metadata host: %q", host)
-
+	printInfo("connect rancher metadata host: %q", cnf.Host)
+	tmpl := template.New("rancher-proxy").Funcs(newFuncMap())
 	version := "init"
 
 	for {
@@ -151,7 +128,7 @@ func processTemplates(cnf *Config) error {
 		printInfo("metadata changed - refresh config")
 
 		for _, set := range cnf.Sets {
-			if err := processTemplateSet(meta, set); err != nil {
+			if err := processTemplateSet(tmpl, meta, set); err != nil {
 				return errors.Annotate(err, "process template set")
 			}
 		}

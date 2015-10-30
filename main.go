@@ -18,6 +18,7 @@ type Command struct {
 }
 
 type TemplateSet struct {
+	Name            string  `toml:"name"`
 	TemplatePath    string  `toml:"template"`
 	DestinationPath string  `toml:"dest"`
 	Check           Command `toml:"check"`
@@ -27,7 +28,6 @@ type TemplateSet struct {
 type Config struct {
 	Repeat int           `toml:"repeat"`
 	Host   string        `toml:"host"`
-	Prefix string        `toml:"prefix"`
 	Sets   []TemplateSet `toml:"set"`
 }
 
@@ -35,7 +35,6 @@ type Config struct {
 func (cnf *Config) Print() {
 	printInfo("check every %d seconds", cnf.Repeat)
 	printInfo("metadata host: %s", cnf.Host)
-	printInfo("prefix: %s", cnf.Prefix)
 	printInfo(" %d template sets found", len(cnf.Sets))
 
 	util.Inspect(cnf)
@@ -43,7 +42,7 @@ func (cnf *Config) Print() {
 
 //////////////////////////////////////////////////////////////////////////////
 func (cnf *Config) Check() error {
-	if cnf.Host == "" || cnf.Prefix == "" || cnf.Repeat == 0 {
+	if cnf.Host == "" || cnf.Repeat == 0 {
 		return errors.New("invalid runtime options")
 	}
 
@@ -83,7 +82,6 @@ func main() {
 				cli.StringFlag{"config, c", "/etc/rancher-meta-template/config.toml", "Configuration File path", ""},
 				cli.IntFlag{"repeat, r", 60, "Repeat config creation every x seconds", "RANCHER_META_REPEAT"},
 				cli.StringFlag{"host, H", "http://rancher-metadata", "Rancher metadata host", "RANCHER_META_HOST"},
-				cli.StringFlag{"prefix, p", "/2015-07-25", "rancher-metadata api prefix", "RANCHER_META_PREFIX"},
 				cli.StringFlag{"template, t", "", "template path", "RANCHER_META_TEMPLATE_PATH"},
 				cli.StringFlag{"destination, d", "", "destination path", "RANCHER_META_DEST_PATH"},
 			},
@@ -113,7 +111,6 @@ func main() {
 
 					cnf = new(Config)
 					cnf.Repeat = ctx.Int("repeat")
-					cnf.Prefix = ctx.String("prefix")
 					cnf.Host = ctx.String("host")
 					cnf.Sets = make([]TemplateSet, 0)
 
@@ -129,10 +126,6 @@ func main() {
 
 					if cnf.Host == "" || ctx.IsSet("host") {
 						cnf.Host = ctx.String("host")
-					}
-
-					if cnf.Prefix == "" || ctx.IsSet("prefix") {
-						cnf.Prefix = ctx.String("prefix")
 					}
 				}
 
