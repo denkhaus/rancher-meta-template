@@ -24,6 +24,7 @@ func main() {
 				cli.IntFlag{"repeat, r", 60, "Repeat config creation every x seconds", "RANCHER_META_REPEAT"},
 				cli.StringFlag{"host, H", "http://rancher-metadata", "Rancher metadata host", "RANCHER_META_HOST"},
 				cli.StringFlag{"template, t", "", "template path", "RANCHER_META_TEMPLATE_PATH"},
+				cli.StringFlag{"prefix, p", "/latest", "api prefix", "RANCHER_META_PREFIX"},
 				cli.StringFlag{"destination, d", "", "destination path", "RANCHER_META_DEST_PATH"},
 			},
 			Action: func(ctx *cli.Context) {
@@ -53,6 +54,7 @@ func main() {
 					cnf = new(Config)
 					cnf.Repeat = ctx.Int("repeat")
 					cnf.Host = ctx.String("host")
+					cnf.Prefix = ctx.String("prefix")
 					cnf.Sets = make([]TemplateSet, 0)
 
 					cnf.Sets = append(cnf.Sets, TemplateSet{
@@ -67,6 +69,10 @@ func main() {
 
 					if cnf.Host == "" || ctx.IsSet("host") {
 						cnf.Host = ctx.String("host")
+					}
+
+					if cnf.Prefix == "" || ctx.IsSet("prefix") {
+						cnf.Host = ctx.String("prefix")
 					}
 				}
 

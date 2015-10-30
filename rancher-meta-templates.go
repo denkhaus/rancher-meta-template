@@ -8,10 +8,10 @@ import (
 	"text/template"
 	"time"
 
-	"gopkg.in/pipe.v2"
-
+	log "github.com/Sirupsen/logrus"
 	"github.com/juju/errors"
 	"github.com/rancher/go-rancher-metadata/metadata"
+	"gopkg.in/pipe.v2"
 )
 
 const (
@@ -20,22 +20,22 @@ const (
 
 //////////////////////////////////////////////////////////////////////////////
 func printError(err error) {
-	fmt.Printf("rancher-meta-template::error: %s\n", errors.ErrorStack(err))
+	fmt.Errorf("rancher-meta-template::error: %s\n", errors.ErrorStack(err))
 }
 
 //////////////////////////////////////////////////////////////////////////////
 func printInfo(format string, args ...interface{}) {
-	fmt.Printf("rancher-meta-template::info: %s\n", fmt.Sprintf(format, args...))
+	log.Infof("rancher-meta-template::info: %s\n", fmt.Sprintf(format, args...))
 }
 
 //////////////////////////////////////////////////////////////////////////////
 func printDebug(format string, args ...interface{}) {
-	fmt.Printf("rancher-meta-template::debug: %s\n", fmt.Sprintf(format, args...))
+	log.Debugf("rancher-meta-template::debug: %s\n", fmt.Sprintf(format, args...))
 }
 
 //////////////////////////////////////////////////////////////////////////////
 func printWarning(format string, args ...interface{}) {
-	fmt.Printf("rancher-meta-template::warn: %s\n", fmt.Sprintf(format, args...))
+	log.Warningf("rancher-meta-template::warn: %s\n", fmt.Sprintf(format, args...))
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -128,14 +128,16 @@ func processTemplateSet(templ *template.Template, meta *metadata.Client, set Tem
 
 //////////////////////////////////////////////////////////////////////////////////
 func processTemplates(cnf *Config) error {
-	meta := metadata.NewClient(cnf.Host)
 
-	printInfo("connect rancher metadata host: %q", cnf.Host)
+	apiURL := path.Join(cnf.Host, cnf.Prefix)
+	meta := metadata.NewClient(apiURL)
+
+	printInfo("connect rancher metadata url: %q", apiURL)
 	tmpl := template.New("rancher-proxy").Funcs(newFuncMap())
 	version := "init"
 
 	//expand template paths
-	printDebug("sanitize template paths")
+	printDebug("expand template paths")
 	for idx, set := range cnf.Sets {
 		if !path.IsAbs(set.TemplatePath) {
 			cnf.Sets[idx].TemplatePath = path.Join(DEFAULT_TEMPLATE_DIR, set.TemplatePath)

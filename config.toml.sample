@@ -1,4 +1,4 @@
-
+prefix = "/latest"
 host = "http://rancher-metadata"
 repeat = 66
 

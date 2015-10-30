@@ -23,6 +23,7 @@ type TemplateSet struct {
 type Config struct {
 	Repeat int           `toml:"repeat"`
 	Host   string        `toml:"host"`
+	Prefix string        `toml:"prefix"`
 	Sets   []TemplateSet `toml:"set"`
 }
 
@@ -35,7 +36,7 @@ func (cnf *Config) Print() {
 
 //////////////////////////////////////////////////////////////////////////////
 func (cnf *Config) Check() error {
-	if cnf.Host == "" || cnf.Repeat == 0 {
+	if cnf.Host == "" || cnf.Repeat == 0 || cnf.Prefix == "" {
 		return errors.New("invalid runtime options")
 	}
 
