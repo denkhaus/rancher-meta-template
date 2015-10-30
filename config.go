@@ -31,6 +31,7 @@ type Config struct {
 func (cnf *Config) Print() {
 	printInfo("check every %d seconds", cnf.Repeat)
 	printInfo("metadata host: %s", cnf.Host)
+	printInfo("prefix is: %s", cnf.Prefix)
 	printInfo(" %d template sets found", len(cnf.Sets))
 }
 

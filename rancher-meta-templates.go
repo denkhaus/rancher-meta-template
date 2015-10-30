@@ -20,22 +20,22 @@ const (
 
 //////////////////////////////////////////////////////////////////////////////
 func printError(err error) {
-	fmt.Errorf("rancher-meta-template::error: %s\n", errors.ErrorStack(err))
+	log.Errorf("rancher-meta-template: %s", errors.ErrorStack(err))
 }
 
 //////////////////////////////////////////////////////////////////////////////
 func printInfo(format string, args ...interface{}) {
-	log.Infof("rancher-meta-template::info: %s\n", fmt.Sprintf(format, args...))
+	log.Infof("rancher-meta-template: %s", fmt.Sprintf(format, args...))
 }
 
 //////////////////////////////////////////////////////////////////////////////
 func printDebug(format string, args ...interface{}) {
-	log.Debugf("rancher-meta-template::debug: %s\n", fmt.Sprintf(format, args...))
+	log.Debugf("rancher-meta-template: %s", fmt.Sprintf(format, args...))
 }
 
 //////////////////////////////////////////////////////////////////////////////
 func printWarning(format string, args ...interface{}) {
-	log.Warningf("rancher-meta-template::warn: %s\n", fmt.Sprintf(format, args...))
+	log.Warningf("rancher-meta-template: %s", fmt.Sprintf(format, args...))
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -134,7 +134,6 @@ func processTemplates(cnf *Config) error {
 
 	printInfo("connect rancher metadata url: %q", apiURL)
 	tmpl := template.New("rancher-proxy").Funcs(newFuncMap())
-	version := "init"
 
 	//expand template paths
 	printDebug("expand template paths")
@@ -144,6 +143,7 @@ func processTemplates(cnf *Config) error {
 		}
 	}
 
+	version := "init"
 	for {
 		newVersion, err := meta.GetVersion()
 		if err != nil {
