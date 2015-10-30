@@ -59,10 +59,8 @@ func where(in interface{}, sliceKey string, sliceVal interface{}) ([]interface{}
 
 	s := reflect.ValueOf(in)
 	for i := 0; i < s.Len(); i++ {
-		val := s.Index(i)
-
-		Inspect(val)
-		st := structs.New(val.Interface())
+		val := s.Index(i).Interface()
+		st := structs.New(val)
 		field, ok := st.FieldOk(sliceKey)
 		if !ok {
 			return ret, errors.New("where: invalid input type")
