@@ -8,7 +8,6 @@ import (
 	"text/template"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/juju/errors"
 	"github.com/rancher/go-rancher-metadata/metadata"
 	"gopkg.in/pipe.v2"
@@ -19,26 +18,6 @@ const (
 )
 
 //////////////////////////////////////////////////////////////////////////////
-func printError(err error) {
-	log.Errorf("rancher-meta-template: %s", errors.ErrorStack(err))
-}
-
-//////////////////////////////////////////////////////////////////////////////
-func printInfo(format string, args ...interface{}) {
-	log.Infof("rancher-meta-template: %s", fmt.Sprintf(format, args...))
-}
-
-//////////////////////////////////////////////////////////////////////////////
-func printDebug(format string, args ...interface{}) {
-	log.Debugf("rancher-meta-template: %s", fmt.Sprintf(format, args...))
-}
-
-//////////////////////////////////////////////////////////////////////////////
-func printWarning(format string, args ...interface{}) {
-	log.Warningf("rancher-meta-template: %s", fmt.Sprintf(format, args...))
-}
-
-//////////////////////////////////////////////////////////////////////////////
 func createTemplateCtx(meta *metadata.Client) (interface{}, error) {
 
 	services, err := meta.GetServices()
@@ -46,20 +25,26 @@ func createTemplateCtx(meta *metadata.Client) (interface{}, error) {
 		return nil, errors.Annotate(err, "get services")
 	}
 
+	servicesW := make([]ServiceWrap, 0)
+	for _, service := range services {
+		sw := ServiceWrap{service}
+		servicesW = append(servicesW, sw)
+	}
+
 	containers, err := meta.GetContainers()
 	if err != nil {
 		return nil, errors.Annotate(err, "get containers")
 	}
 
-	//	hosts, err := meta.GetHosts()
-	//	if err != nil {
-	//		return nil, errors.Annotate(err, "get hosts")
-	//	}
+	containersW := make([]ContainerWrap, 0)
+	for _, container := range containers {
+		cw := ContainerWrap{container}
+		containersW = append(containersW, cw)
+	}
 
 	ctx := map[string]interface{}{
-		"Services":   services,
-		"Containers": containers,
-		//	"Hosts":      hosts,
+		"Services":   servicesW,
+		"Containers": containersW,
 	}
 
 	return ctx, nil

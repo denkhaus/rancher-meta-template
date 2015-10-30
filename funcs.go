@@ -28,6 +28,7 @@ func newFuncMap() map[string]interface{} {
 	m["json"] = UnmarshalJsonObject
 	m["jsonArray"] = UnmarshalJsonArray
 	m["dir"] = path.Dir
+	m["get"] = get
 	m["getenv"] = os.Getenv
 	m["join"] = strings.Join
 	m["atoi"] = strconv.Atoi
@@ -38,6 +39,24 @@ func newFuncMap() map[string]interface{} {
 	m["contains"] = strings.Contains
 	m["replace"] = strings.Replace
 	return m
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func get(ctx interface{}, action string, args ...interface{}) (interface{}, error) {
+	method := reflect.ValueOf(&ctx).MethodByName(action)
+	in := make([]reflect.Value, len(args))
+	for idx, arg := range args {
+		in[idx] = reflect.ValueOf(arg)
+	}
+
+	out := method.Call(in)
+	ret := out[0].Interface()
+	err := out[1].Interface()
+
+	if err != nil {
+		return ret, err.(error)
+	}
+	return ret, nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
