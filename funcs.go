@@ -12,8 +12,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/fatih/structs"
 )
+
+////////////////////////////////////////////////////////////////////////////////
+func Inspect(args ...interface{}) {
+	spew.Dump(args)
+}
 
 func newFuncMap() map[string]interface{} {
 	m := make(map[string]interface{})
@@ -54,6 +60,8 @@ func where(in interface{}, sliceKey string, sliceVal interface{}) ([]interface{}
 	s := reflect.ValueOf(in)
 	for i := 0; i < s.Len(); i++ {
 		val := s.Index(i)
+
+		Inspect(val)
 		st := structs.New(val)
 		field, ok := st.FieldOk(sliceKey)
 		if !ok {
