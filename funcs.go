@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/fatih/structs"
 )
 
 func newFuncMap() map[string]interface{} {
@@ -20,9 +22,9 @@ func newFuncMap() map[string]interface{} {
 	m["jsonArray"] = UnmarshalJsonArray
 	m["dir"] = path.Dir
 	m["getenv"] = os.Getenv
-	m["sliceselect"] = sliceselect
 	m["join"] = strings.Join
 	m["atoi"] = strconv.Atoi
+	m["where"] = where
 	m["datetime"] = time.Now
 	m["toUpper"] = strings.ToUpper
 	m["toLower"] = strings.ToLower
@@ -32,39 +34,27 @@ func newFuncMap() map[string]interface{} {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func sliceselect(m []interface{}, sliceKey string, sliceVal interface{}) ([]interface{}, error) {
+func where(m []interface{}, sliceKey string, sliceVal interface{}) ([]interface{}, error) {
+	ret := make([]interface{}, 0)
 	if m == nil {
-		ret := make([]interface{}, 0)
-		return ret, errors.New("sliceselect: first argument is nil")
+		return ret, errors.New("where: source is nil")
 	}
 	if sliceKey == "" {
-		ret := make([]interface{}, 0)
-		return ret, errors.New("sliceselect: second argument is nil")
+		return ret, errors.New("where: key is nil")
 	}
 	if sliceVal == nil {
-		ret := make([]interface{}, 0)
-		return ret, errors.New("sliceselect: third argument is nil")
+		return ret, errors.New("where: value is nil")
 	}
 
-	idx := 0
-	v := make([]map[string]interface{}, len(m))
-	for _, val := range m {
-		v[idx] = val.(map[string]interface{})
-		idx++
-	}
-
-	v2 := make([]interface{}, 0)
-	for _, mp := range v {
-		if s, ok := mp[sliceKey]; ok {
-			for _, vl := range s.([]interface{}) {
-				if vl == sliceVal {
-					v2 = append(v2, mp)
-				}
-			}
+	for _, str := range m {
+		st := structs.New(str)
+		field := st.Field(sliceKey)
+		if field.Value() == sliceVal {
+			ret = append(ret, str)
 		}
 	}
 
-	return v2, nil
+	return ret, nil
 }
 
 func addFuncs(out, in map[string]interface{}) {

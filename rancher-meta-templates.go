@@ -78,7 +78,7 @@ func appendCommandPipe(cmd Command, pipes []pipe.Pipe) []pipe.Pipe {
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-func processTemplateSet(templ *template.Template, meta *metadata.Client, set TemplateSet) error {
+func processTemplateSet(meta *metadata.Client, set TemplateSet) error {
 
 	if _, err := os.Stat(set.TemplatePath); err != nil {
 		printWarning("template path %q is not available: skip", set.TemplatePath)
@@ -90,6 +90,7 @@ func processTemplateSet(templ *template.Template, meta *metadata.Client, set Tem
 		return errors.Annotate(err, "read template file")
 	}
 
+	templ := template.New(set.Name).Funcs(newFuncMap())
 	tmpl, err := templ.Parse(string(buf))
 	if err != nil {
 		return errors.Annotate(err, "parse template")
@@ -133,7 +134,6 @@ func processTemplates(cnf *Config) error {
 	meta := metadata.NewClient(apiURL)
 
 	printInfo("connect rancher metadata url: %q", apiURL)
-	tmpl := template.New("rancher-proxy").Funcs(newFuncMap())
 
 	//expand template paths
 	printDebug("expand template paths")
@@ -159,7 +159,7 @@ func processTemplates(cnf *Config) error {
 		printInfo("metadata changed - refresh config")
 
 		for _, set := range cnf.Sets {
-			if err := processTemplateSet(tmpl, meta, set); err != nil {
+			if err := processTemplateSet(meta, set); err != nil {
 				return errors.Annotate(err, "process template set")
 			}
 		}
