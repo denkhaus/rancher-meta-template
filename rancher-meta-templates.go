@@ -129,7 +129,7 @@ func processTemplateSet(templ *template.Template, meta *metadata.Client, set Tem
 //////////////////////////////////////////////////////////////////////////////////
 func processTemplates(cnf *Config) error {
 
-	apiURL := path.Join(cnf.Host, cnf.Prefix)
+	apiURL := fmt.Sprintf("%s%s", cnf.Host, cnf.Prefix)
 	meta := metadata.NewClient(apiURL)
 
 	printInfo("connect rancher metadata url: %q", apiURL)
