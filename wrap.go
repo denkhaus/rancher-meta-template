@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/juju/errors"
@@ -24,7 +25,7 @@ func (p ContainerWrap) extractPort(idx, partx int) string {
 	if part == "" {
 		return part
 	}
-
+	fmt.Println(part)
 	items := strings.Split(part, ":")
 	if len(items) == 2 {
 		part = items[partx]
