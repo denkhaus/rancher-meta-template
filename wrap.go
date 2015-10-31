@@ -19,7 +19,7 @@ type ContainerWrap struct {
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-func (p ContainerWrap) portSelect(idx int) string {
+func (p ContainerWrap) extractPort(idx, partx int) string {
 	part := p.Ports[idx]
 	if part == "" {
 		return part
@@ -27,7 +27,7 @@ func (p ContainerWrap) portSelect(idx int) string {
 
 	items := strings.Split(part, ":")
 	if len(items) == 2 {
-		part = items[idx]
+		part = items[partx]
 	} else {
 		part = items[0]
 	}
@@ -41,22 +41,25 @@ func (p ContainerWrap) portSelect(idx int) string {
 
 //////////////////////////////////////////////////////////////////////////////////
 func (p ContainerWrap) PortInternal(idx int) (string, error) {
-	if len(p.Ports) > idx {
+	Inspect(idx)
+	Inspect(p)
+
+	if idx >= len(p.Ports) {
 		printTmplError("PortInternal: index %d out of range", idx)
 		return "", errors.New("PortInternal: index %d out of range")
 	}
 
-	return p.portSelect(2), nil
+	return p.extractPort(idx, 1), nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 func (p ContainerWrap) PortExternal(idx int) (string, error) {
-	if len(p.Ports) > idx {
+	if idx >= len(p.Ports) {
 		printTmplError("PortExternal: index %d out of range", idx)
 		return "", errors.New("PortExternal: index %d out of range")
 	}
 
-	return p.portSelect(1), nil
+	return p.extractPort(idx, 0), nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////
