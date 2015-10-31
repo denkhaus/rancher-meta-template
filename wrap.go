@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/juju/errors"
@@ -24,6 +23,8 @@ func (p ContainerWrap) PortInternal(idx int) (string, error) {
 	if len(p.Ports) == 0 {
 		return "", nil
 	}
+
+	Inspect(p.Ports)
 	if idx >= len(p.Ports) {
 		return "", errors.Errorf("PortInternal: index %d out of range", idx)
 	}
@@ -33,7 +34,7 @@ func (p ContainerWrap) PortInternal(idx int) (string, error) {
 		return part, nil
 	}
 
-	fmt.Println(part)
+	printDebug(part)
 	items := strings.Split(part, ":")
 	part = items[len(items)-1]
 	if strings.Contains(part, "/") {
@@ -50,7 +51,8 @@ func (p ContainerWrap) LabelByKey(key string) (string, error) {
 		return val, nil
 	}
 
-	return "", errors.Errorf("LabelByKey: label %s not found", key)
+	printWarning("LabelByKey: key %q is not found", key)
+	return "", nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////
