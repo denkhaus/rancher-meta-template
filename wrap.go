@@ -38,7 +38,7 @@ func (p ContainerWrap) portSelect(idx int) string {
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-func (p ContainerWrap) PortInternal(idx int) string {
+func (p ContainerWrap) PortInternal(idx int) (string, error) {
 	if len(p.Ports) > idx {
 		printTmplError("PortInternal: index %d out of range", idx)
 		return ""
@@ -48,7 +48,7 @@ func (p ContainerWrap) PortInternal(idx int) string {
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-func (p ContainerWrap) PortExternal(idx int) string {
+func (p ContainerWrap) PortExternal(idx int) (string, error) {
 	if len(p.Ports) > idx {
 		printTmplError("PortExternal: index %d out of range", idx)
 		return ""
