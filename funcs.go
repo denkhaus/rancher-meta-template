@@ -43,7 +43,7 @@ func newFuncMap() map[string]interface{} {
 
 ////////////////////////////////////////////////////////////////////////////////
 func get(ctx interface{}, action string, args ...interface{}) (interface{}, error) {
-	method := reflect.ValueOf(&ctx).MethodByName(action)
+	method := reflect.ValueOf(ctx).MethodByName(action)
 	in := make([]reflect.Value, len(args))
 	for idx, arg := range args {
 		in[idx] = reflect.ValueOf(arg)
