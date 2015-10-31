@@ -45,7 +45,7 @@ func (p ContainerWrap) PortInternal(idx int) (string, error) {
 		return "", nil
 	}
 	if idx >= len(p.Ports) {
-		return "", errors.New("PortInternal: index %d out of range", idx)
+		return "", errors.Errorf("PortInternal: index %d out of range", idx)
 	}
 
 	return p.extractPort(idx, 1), nil
@@ -57,7 +57,7 @@ func (p ContainerWrap) PortExternal(idx int) (string, error) {
 		return "", nil
 	}
 	if idx >= len(p.Ports) {
-		return "", errors.New("PortExternal: index %d out of range", idx)
+		return "", errors.Errorf("PortExternal: index %d out of range", idx)
 	}
 
 	return p.extractPort(idx, 0), nil
