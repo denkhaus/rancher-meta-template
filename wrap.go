@@ -30,7 +30,7 @@ func (p ContainerWrap) PortInternal(idx int) (string, error) {
 
 	part := p.Ports[idx]
 	if part == "" {
-		return part
+		return part, nil
 	}
 
 	fmt.Println(part)
@@ -40,7 +40,7 @@ func (p ContainerWrap) PortInternal(idx int) (string, error) {
 		part = strings.Split(part, "/")[0]
 	}
 
-	return part
+	return part, nil
 
 }
 
