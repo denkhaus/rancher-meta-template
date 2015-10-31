@@ -41,12 +41,11 @@ func (p ContainerWrap) extractPort(idx, partx int) string {
 
 //////////////////////////////////////////////////////////////////////////////////
 func (p ContainerWrap) PortInternal(idx int) (string, error) {
-	Inspect(idx)
-	Inspect(p)
-
+	if len(p.Ports) == 0 {
+		return "", nil
+	}
 	if idx >= len(p.Ports) {
-		printTmplError("PortInternal: index %d out of range", idx)
-		return "", errors.New("PortInternal: index %d out of range")
+		return "", errors.New("PortInternal: index %d out of range", idx)
 	}
 
 	return p.extractPort(idx, 1), nil
@@ -54,9 +53,11 @@ func (p ContainerWrap) PortInternal(idx int) (string, error) {
 
 //////////////////////////////////////////////////////////////////////////////////
 func (p ContainerWrap) PortExternal(idx int) (string, error) {
+	if len(p.Ports) == 0 {
+		return "", nil
+	}
 	if idx >= len(p.Ports) {
-		printTmplError("PortExternal: index %d out of range", idx)
-		return "", errors.New("PortExternal: index %d out of range")
+		return "", errors.New("PortExternal: index %d out of range", idx)
 	}
 
 	return p.extractPort(idx, 0), nil
