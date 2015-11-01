@@ -4,13 +4,15 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
+
 	"os"
 	"path"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/juju/errors"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/fatih/structs"
@@ -60,13 +62,13 @@ func get(ctx interface{}, action string, args ...interface{}) (interface{}, erro
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func where(in interface{}, sliceKey string, sliceVal interface{}) ([]interface{}, error) {
+func where(in interface{}, field string, sliceVal interface{}) ([]interface{}, error) {
 	ret := make([]interface{}, 0)
 	if in == nil {
 		return ret, errors.New("where: source is nil")
 	}
-	if sliceKey == "" {
-		return ret, errors.New("where: key is empty")
+	if field == "" {
+		return ret, errors.New("where: field is empty")
 	}
 	if sliceVal == nil {
 		return ret, errors.New("where: value is nil")
@@ -80,11 +82,11 @@ func where(in interface{}, sliceKey string, sliceVal interface{}) ([]interface{}
 	for i := 0; i < s.Len(); i++ {
 		val := s.Index(i).Interface()
 		st := structs.New(val)
-		field, ok := st.FieldOk(sliceKey)
+		fieldVal, ok := st.FieldOk(field)
 		if !ok {
-			return ret, errors.New("where: invalid input type")
+			return ret, errors.Errorf("where: key %q not found", field)
 		}
-		if field.Value() == sliceVal {
+		if fieldVal.Value() == sliceVal {
 			ret = append(ret, val)
 		}
 	}
