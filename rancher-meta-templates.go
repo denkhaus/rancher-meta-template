@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
+	"crypto/md5"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path"
@@ -50,6 +54,26 @@ func createTemplateCtx(meta *metadata.Client) (interface{}, error) {
 	return ctx, nil
 }
 
+//////////////////////////////////////////////////////////////////////////////
+func computeMd5(filePath string) (string, error) {
+	if _, err := os.Stat(filePath); err != nil {
+		return "", nil
+	}
+
+	file, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	hash := md5.New()
+	if _, err := io.Copy(hash, file); err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%x", hash.Sum(nil)), nil
+}
+
 //////////////////////////////////////////////////////////////////////////////////
 func appendCommandPipe(cmd Command, pipes []pipe.Pipe) []pipe.Pipe {
 	if cmd.Cmd != "" {
@@ -81,20 +105,60 @@ func processTemplateSet(meta *metadata.Client, set TemplateSet) error {
 		return errors.Annotate(err, "parse template")
 	}
 
+	lastMd5 := ""
+	if _, err = os.Stat(set.DestinationPath); err == nil {
+		lmd5, err := computeMd5(set.DestinationPath)
+		if err != nil {
+			return errors.Annotate(err, "get last md5 hash")
+		}
+		lastMd5 = lmd5
+	}
+
 	ctx, err := createTemplateCtx(meta)
 	if err != nil {
 		return errors.Annotate(err, "create template context")
+	}
+
+	var newBuf bytes.Buffer
+	wr := bufio.NewWriter(&newBuf)
+	if err := tmpl.Execute(wr, ctx); err != nil {
+		return errors.Annotate(err, "execute template")
+	}
+
+	if err := wr.Flush(); err != nil {
+		return errors.Annotate(err, "flush tmpl writer")
+	}
+
+	hash := md5.New()
+	hash.Write(newBuf.Bytes())
+	currentMd5 := fmt.Sprintf("%x", hash.Sum(nil))
+
+	if lastMd5 == currentMd5 {
+		return nil
+	}
+
+	if lastMd5 == "" {
+		printInfo("create output file")
+	} else {
+		printInfo("output file needs refresh")
+		printInfo("last md5 sum is %q", lastMd5)
+		printInfo("current md5 sum is %q", currentMd5)
 	}
 
 	f, err := os.Create(set.DestinationPath)
 	if err != nil {
 		return errors.Annotate(err, "create destination file")
 	}
+	defer f.Close()
 
-	if err := tmpl.Execute(f, ctx); err != nil {
-		return errors.Annotate(err, "execute template")
+	w := bufio.NewWriter(f)
+	if _, err := w.Write(newBuf.Bytes()); err != nil {
+		return errors.Annotate(err, "write to output")
 	}
-	f.Close()
+
+	if err := w.Flush(); err != nil {
+		return errors.Annotate(err, "flush out writer")
+	}
 
 	printInfo("process check & run")
 
@@ -103,8 +167,7 @@ func processTemplateSet(meta *metadata.Client, set TemplateSet) error {
 	pipes = appendCommandPipe(set.Run, pipes)
 
 	script := pipe.Script(pipes...)
-	output, err := pipe.CombinedOutput(script)
-	if err != nil {
+	if output, err := pipe.CombinedOutput(script); err != nil {
 		printInfo(string(output))
 		return errors.Annotate(err, "check & run")
 	}
