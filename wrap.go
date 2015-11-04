@@ -24,7 +24,6 @@ func (p ContainerWrap) PortInternal(idx int) (string, error) {
 		return "", nil
 	}
 
-	Inspect(p.Ports)
 	if idx >= len(p.Ports) {
 		return "", errors.Errorf("PortInternal: index %d out of range", idx)
 	}
@@ -51,7 +50,7 @@ func (p ContainerWrap) LabelByKey(key string) (string, error) {
 		return val, nil
 	}
 
-	printWarning("LabelByKey: key %q is not found", key)
+	printDebug("LabelByKey: key %q is not found", key)
 	return "", nil
 }
 

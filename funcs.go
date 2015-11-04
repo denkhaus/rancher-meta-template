@@ -18,11 +18,6 @@ import (
 	"github.com/fatih/structs"
 )
 
-////////////////////////////////////////////////////////////////////////////////
-func Inspect(args ...interface{}) {
-	spew.Dump(args)
-}
-
 func newFuncMap() map[string]interface{} {
 	m := make(map[string]interface{})
 	m["base"] = path.Base
@@ -35,12 +30,25 @@ func newFuncMap() map[string]interface{} {
 	m["join"] = strings.Join
 	m["atoi"] = strconv.Atoi
 	m["where"] = where
+	m["inspect"] = Inspect
 	m["datetime"] = time.Now
 	m["toUpper"] = strings.ToUpper
 	m["toLower"] = strings.ToLower
 	m["contains"] = strings.Contains
 	m["replace"] = strings.Replace
+	m["scratchGetMVal"] = scratchGetMapValue
+	m["scratchGetSVal"] = scratchGetSliceValue
+	m["scratchSet"] = scratchSet
+	m["scratchAdd"] = scratchAdd
+	m["scratchMNames"] = scratchMapNames
+	m["scratchSNames"] = scratchSliceNames
+
 	return m
+}
+
+////////////////////////////////////////////////////////////////////////////////
+func Inspect(args ...interface{}) {
+	spew.Dump(args)
 }
 
 ////////////////////////////////////////////////////////////////////////////////

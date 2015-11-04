@@ -28,13 +28,6 @@ func createTemplateCtx(meta *metadata.Client) (interface{}, error) {
 	if err != nil {
 		return nil, errors.Annotate(err, "get services")
 	}
-
-	servicesW := make([]ServiceWrap, 0)
-	for _, service := range services {
-		sw := ServiceWrap{service}
-		servicesW = append(servicesW, sw)
-	}
-
 	containers, err := meta.GetContainers()
 	if err != nil {
 		return nil, errors.Annotate(err, "get containers")
@@ -44,6 +37,12 @@ func createTemplateCtx(meta *metadata.Client) (interface{}, error) {
 	for _, container := range containers {
 		cw := ContainerWrap{container}
 		containersW = append(containersW, cw)
+	}
+
+	servicesW := make([]ServiceWrap, 0)
+	for _, service := range services {
+		sw := ServiceWrap{service}
+		servicesW = append(servicesW, sw)
 	}
 
 	ctx := map[string]interface{}{
