@@ -16,6 +16,8 @@ type TemplateSet struct {
 	Name            string  `toml:"name"`
 	TemplatePath    string  `toml:"template"`
 	DestinationPath string  `toml:"dest"`
+	User            string  `toml:"user"`
+	Group           string  `toml:"group"`
 	Check           Command `toml:"check"`
 	Run             Command `toml:"run"`
 }
@@ -24,6 +26,8 @@ type Config struct {
 	Repeat int           `toml:"repeat"`
 	Host   string        `toml:"host"`
 	Prefix string        `toml:"prefix"`
+	User   string        `toml:"user"`
+	Group  string        `toml:"group"`
 	Sets   []TemplateSet `toml:"set"`
 }
 
@@ -32,6 +36,7 @@ func (cnf *Config) Print() {
 	printInfo("check every %d seconds", cnf.Repeat)
 	printInfo("metadata host: %s", cnf.Host)
 	printInfo("prefix is: %s", cnf.Prefix)
+	printInfo("run as %s:%s", cnf.User, cnf.Group)
 	printInfo(" %d template sets found", len(cnf.Sets))
 }
 

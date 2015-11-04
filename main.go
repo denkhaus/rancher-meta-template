@@ -26,6 +26,8 @@ func main() {
 				cli.StringFlag{"template, t", "", "template path", "RANCHER_META_TEMPLATE_PATH"},
 				cli.StringFlag{"prefix, p", "/latest", "api prefix", "RANCHER_META_PREFIX"},
 				cli.StringFlag{"destination, d", "", "destination path", "RANCHER_META_DEST_PATH"},
+				cli.StringFlag{"user, u", "nouser", "user", "RANCHER_META_USER"},
+				cli.StringFlag{"group, g", "nogroup", "group", "RANCHER_META_GROUP"},
 			},
 			Action: func(ctx *cli.Context) {
 				printInfo("startup")
@@ -55,6 +57,8 @@ func main() {
 					cnf.Repeat = ctx.Int("repeat")
 					cnf.Host = ctx.String("host")
 					cnf.Prefix = ctx.String("prefix")
+					cnf.User = ctx.String("user")
+					cnf.Group = ctx.String("group")
 					cnf.Sets = make([]TemplateSet, 0)
 
 					cnf.Sets = append(cnf.Sets, TemplateSet{
@@ -66,13 +70,17 @@ func main() {
 					if cnf.Repeat == 0 || ctx.IsSet("repeat") {
 						cnf.Repeat = ctx.Int("repeat")
 					}
-
 					if cnf.Host == "" || ctx.IsSet("host") {
 						cnf.Host = ctx.String("host")
 					}
-
 					if cnf.Prefix == "" || ctx.IsSet("prefix") {
 						cnf.Host = ctx.String("prefix")
+					}
+					if cnf.User == "" || ctx.IsSet("user") {
+						cnf.User = ctx.String("user")
+					}
+					if cnf.Group == "" || ctx.IsSet("group") {
+						cnf.Group = ctx.String("group")
 					}
 				}
 
