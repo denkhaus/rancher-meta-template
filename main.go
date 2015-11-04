@@ -25,15 +25,15 @@ func main() {
 				cli.StringFlag{"host, H", "http://rancher-metadata", "Rancher metadata host", "RANCHER_META_HOST"},
 				cli.StringFlag{"template, t", "", "template path", "RANCHER_META_TEMPLATE_PATH"},
 				cli.StringFlag{"prefix, p", "/latest", "api prefix", "RANCHER_META_PREFIX"},
-				cli.StringFlag{"destination, d", "", "destination path", "RANCHER_META_DEST_PATH"},
-				cli.StringFlag{"user, u", "nouser", "user", "RANCHER_META_USER"},
-				cli.StringFlag{"group, g", "nogroup", "group", "RANCHER_META_GROUP"},
+				cli.StringFlag{"destination, d", "", "the destination path", "RANCHER_META_DEST_PATH"},
+				cli.StringFlag{"user, u", "nouser", "run as user", "RANCHER_META_USER"},
+				cli.StringFlag{"group, g", "nogroup", "run as group", "RANCHER_META_GROUP"},
+				cli.StringFlag{"loglevel, l", "warning", "the loglevel", "RANCHER_META_LOGLEVEL"},
 			},
 			Action: func(ctx *cli.Context) {
 				printInfo("startup")
 
-				confPath := ctx.String("config")
-				cnf, err := readConfig(confPath)
+				cnf, err := readConfig(ctx.String("config"))
 				if err != nil {
 					printError(errors.Annotate(err, "read config"))
 					return
@@ -59,6 +59,7 @@ func main() {
 					cnf.Prefix = ctx.String("prefix")
 					cnf.User = ctx.String("user")
 					cnf.Group = ctx.String("group")
+					cnf.Group = ctx.String("loglevel")
 					cnf.Sets = make([]TemplateSet, 0)
 
 					cnf.Sets = append(cnf.Sets, TemplateSet{
@@ -82,6 +83,9 @@ func main() {
 					if cnf.Group == "" || ctx.IsSet("group") {
 						cnf.Group = ctx.String("group")
 					}
+					if cnf.LogLevel == "" || ctx.IsSet("loglevel") {
+						cnf.LogLevel = ctx.String("loglevel")
+					}
 				}
 
 				if !govalidator.IsRequestURL(cnf.Host) {
@@ -89,12 +93,17 @@ func main() {
 					return
 				}
 
+				cnf.Print()
 				if err := cnf.Check(); err != nil {
 					printError(errors.Annotate(err, "check config"))
 					return
 				}
 
-				cnf.Print()
+				if err := setLogLevel(cnf.LogLevel); err != nil {
+					printError(errors.Annotate(err, "set log level"))
+					return
+				}
+
 				if err := processTemplates(cnf); err != nil {
 					printError(errors.Annotate(err, "process templates"))
 				}

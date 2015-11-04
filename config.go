@@ -23,12 +23,13 @@ type TemplateSet struct {
 }
 
 type Config struct {
-	Repeat int           `toml:"repeat"`
-	Host   string        `toml:"host"`
-	Prefix string        `toml:"prefix"`
-	User   string        `toml:"user"`
-	Group  string        `toml:"group"`
-	Sets   []TemplateSet `toml:"set"`
+	Repeat   int           `toml:"repeat"`
+	Host     string        `toml:"host"`
+	Prefix   string        `toml:"prefix"`
+	User     string        `toml:"user"`
+	Group    string        `toml:"group"`
+	LogLevel string        `toml:"loglevel"`
+	Sets     []TemplateSet `toml:"set"`
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -36,13 +37,19 @@ func (cnf *Config) Print() {
 	printInfo("check every %d seconds", cnf.Repeat)
 	printInfo("metadata host: %s", cnf.Host)
 	printInfo("prefix is: %s", cnf.Prefix)
+	printInfo("loglevel is: %s", cnf.LogLevel)
 	printInfo("run as %s:%s", cnf.User, cnf.Group)
 	printInfo(" %d template sets found", len(cnf.Sets))
 }
 
 //////////////////////////////////////////////////////////////////////////////
 func (cnf *Config) Check() error {
-	if cnf.Host == "" || cnf.Repeat == 0 || cnf.Prefix == "" {
+	if cnf.Host == "" ||
+		cnf.Repeat == 0 ||
+		cnf.Prefix == "" ||
+		cnf.User == "" ||
+		cnf.Group == "" ||
+		cnf.LogLevel == "" {
 		return errors.New("invalid runtime options")
 	}
 
