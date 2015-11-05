@@ -36,12 +36,12 @@ func newFuncMap() map[string]interface{} {
 	m["toLower"] = strings.ToLower
 	m["contains"] = strings.Contains
 	m["replace"] = strings.Replace
-	m["scratchGetMVal"] = scratchGetMapValue
-	m["scratchGetSVal"] = scratchGetSliceValue
-	m["scratchSet"] = scratchSet
-	m["scratchAdd"] = scratchAdd
-	m["scratchMNames"] = scratchMapNames
-	m["scratchSNames"] = scratchSliceNames
+	m["scrGetMVal"] = scratchGetMapValue
+	m["scrSValues"] = scratchGetSliceValues
+	m["scrMSet"] = scratchMapSet
+	m["scrSAdd"] = scratchSliceAdd
+	m["scrMKeys"] = scratchMapNames
+	m["scrSKeys"] = scratchSliceNames
 
 	return m
 }
