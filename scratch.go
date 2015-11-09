@@ -4,13 +4,15 @@ var scrtsMap = make(map[string]map[string]interface{})
 var scrtsSlice = make(map[string][]interface{})
 
 //////////////////////////////////////////////////////////////////////////////
-func scratchMapSet(scratch string, key string, value interface{}) {
+func scratchMapSet(scratch string, key string, value interface{}) error {
 	if scr, ok := scrtsMap[scratch]; ok {
 		scr[key] = value
 	} else {
 		scrtsMap[scratch] = make(map[string]interface{})
 		scrtsMap[scratch][key] = value
 	}
+
+	return nil
 }
 
 //////////////////////////////////////////////////////////////////////////////
