@@ -50,7 +50,7 @@ func (p ContainerWrap) LabelByKey(key string) (string, error) {
 		return val, nil
 	}
 
-	printDebug("LabelByKey:: container: %s: key %q is not found", p.Name, key)
+	printDebug("LabelByKey:: container: %s: key %q is not present", p.Name, key)
 	return "", nil
 }
 

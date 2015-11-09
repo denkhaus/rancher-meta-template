@@ -1,13 +1,16 @@
 prefix = "/latest"
 host = "http://rancher-metadata"
 repeat = 66
+user = "root"
+group = "root"
+loglevel = "debug"
 
 ################################################################################
 
 [[set]]
 name = "template 1"
-template = "nginx.tmpl"
-dest = "/etc/nginx/sites-available/nginx.conf"
+template = "upstream.tmpl"
+dest = "/etc/nginx/sites-available/upstream.conf"
 
 [set.check]
 cmd = "nginx"

@@ -20,8 +20,7 @@ func scratchSliceAdd(scratch string, value interface{}) string {
 	if scr, ok := scrtsSlice[scratch]; ok {
 		scr = append(scr, value)
 	} else {
-		scrtsSlice[scratch] = make([]interface{}, 0)
-		scrtsSlice[scratch] = append(scrtsSlice[scratch], value)
+		scrtsSlice[scratch] = []interface{}{value}
 	}
 
 	return ""
