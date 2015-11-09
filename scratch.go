@@ -36,7 +36,7 @@ func scratchGetMapValue(scratch string, key string) interface{} {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-func scratchGetSliceValues(scratch string, key string) []interface{} {
+func scratchGetSliceValues(scratch string) []interface{} {
 	if scr, ok := scrtsSlice[scratch]; ok {
 		return scr
 	}
