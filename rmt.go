@@ -139,9 +139,9 @@ func processTemplateSet(meta *metadata.Client, set TemplateSet) error {
 	if lastMd5 == "" {
 		printInfo("create output file")
 	} else {
-		printInfo("output file needs refresh")
 		printInfo("last md5 sum is %q", lastMd5)
 		printInfo("current md5 sum is %q", currentMd5)
+		printInfo("output file needs refresh")
 	}
 
 	f, err := os.Create(set.DestinationPath)
