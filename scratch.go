@@ -4,7 +4,7 @@ var scrtsMap = make(map[string]map[string]interface{})
 var scrtsSlice = make(map[string][]interface{})
 
 //////////////////////////////////////////////////////////////////////////////
-func scratchMapSet(scratch string, key string, value interface{}) error {
+func scratchMapSet(scratch string, key string, value interface{}) string {
 	if scr, ok := scrtsMap[scratch]; ok {
 		scr[key] = value
 	} else {
@@ -12,11 +12,11 @@ func scratchMapSet(scratch string, key string, value interface{}) error {
 		scrtsMap[scratch][key] = value
 	}
 
-	return nil
+	return ""
 }
 
 //////////////////////////////////////////////////////////////////////////////
-func scratchSliceAdd(scratch string, value interface{}) error {
+func scratchSliceAdd(scratch string, value interface{}) string {
 	if scr, ok := scrtsSlice[scratch]; ok {
 		scr = append(scr, value)
 	} else {
@@ -24,7 +24,7 @@ func scratchSliceAdd(scratch string, value interface{}) error {
 		scrtsSlice[scratch] = append(scrtsSlice[scratch], value)
 	}
 
-	return nil
+	return ""
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -45,8 +45,7 @@ func scratchGetSliceValues(scratch string) []interface{} {
 
 //////////////////////////////////////////////////////////////////////////////
 func scratchMapNames() []string {
-	nms := make([]string, 0)
-
+	var nms []string
 	for k := range scrtsMap {
 		nms = append(nms, k)
 	}
@@ -55,8 +54,7 @@ func scratchMapNames() []string {
 
 //////////////////////////////////////////////////////////////////////////////
 func scratchSliceNames() []string {
-	nms := make([]string, 0)
-
+	var nms []string
 	for k := range scrtsSlice {
 		nms = append(nms, k)
 	}
