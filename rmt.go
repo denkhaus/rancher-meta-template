@@ -148,7 +148,6 @@ func processTemplateSet(meta *metadata.Client, set TemplateSet) error {
 	if err != nil {
 		return errors.Annotate(err, "create destination file")
 	}
-	defer f.Close()
 
 	w := bufio.NewWriter(f)
 	if _, err := w.Write(newBuf.Bytes()); err != nil {
@@ -157,6 +156,10 @@ func processTemplateSet(meta *metadata.Client, set TemplateSet) error {
 
 	if err := w.Flush(); err != nil {
 		return errors.Annotate(err, "flush out writer")
+	}
+
+	if err := f.Close(); err != nil {
+		return errors.Annotate(err, "outfile close")
 	}
 
 	printInfo("process check & run")
