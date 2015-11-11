@@ -30,7 +30,7 @@ func main() {
 				cli.StringFlag{"group, g", "nogroup", "run as group", "RANCHER_META_GROUP"},
 				cli.StringFlag{"loglevel, l", "warning", "the loglevel", "RANCHER_META_LOGLEVEL"},
 			},
-			Action: func(ctx *cli.Context) { 
+			Action: func(ctx *cli.Context) {
 				printInfo("startup")
 
 				cnf, err := readConfig(ctx.String("config"))
@@ -59,7 +59,7 @@ func main() {
 					cnf.Prefix = ctx.String("prefix")
 					cnf.User = ctx.String("user")
 					cnf.Group = ctx.String("group")
-					cnf.Group = ctx.String("loglevel")
+					cnf.LogLevel = ctx.String("loglevel")
 					cnf.Sets = make([]TemplateSet, 0)
 
 					cnf.Sets = append(cnf.Sets, TemplateSet{
