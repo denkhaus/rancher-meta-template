@@ -12,6 +12,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/denkhaus/rancher-meta-templates/scratch"
 	"github.com/juju/errors"
 	"github.com/rancher/go-rancher-metadata/metadata"
 	"gopkg.in/pipe.v2"
@@ -209,6 +210,7 @@ func processTemplates(cnf *Config) error {
 		printInfo("metadata changed - refresh config")
 
 		for _, set := range cnf.Sets {
+			scratch.Reset()
 			if err := processTemplateSet(meta, set); err != nil {
 				return errors.Annotate(err, "process template set")
 			}

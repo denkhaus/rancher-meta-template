@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/denkhaus/rancher-meta-templates/scratch"
 	"github.com/juju/errors"
 
 	"github.com/davecgh/go-spew/spew"
@@ -36,12 +37,12 @@ func newFuncMap() map[string]interface{} {
 	m["toLower"] = strings.ToLower
 	m["contains"] = strings.Contains
 	m["replace"] = strings.Replace
-	m["scrGetMVal"] = scratchGetMapValue
-	m["scrSValues"] = scratchGetSliceValues
-	m["scrMSet"] = scratchMapSet
-	m["scrSAdd"] = scratchSliceAdd
-	m["scrMKeys"] = scratchMapNames
-	m["scrSKeys"] = scratchSliceNames
+	m["scrGetMVal"] = scratch.ScratchGetMapValue
+	m["scrSValues"] = scratch.ScratchGetSliceValues
+	m["scrMSet"] = scratch.ScratchMapSet
+	m["scrSAdd"] = scratch.ScratchSliceAdd
+	m["scrMKeys"] = scratch.ScratchMapNames
+	m["scrSKeys"] = scratch.ScratchSliceNames
 
 	return m
 }
