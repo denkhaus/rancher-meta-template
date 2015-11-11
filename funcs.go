@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/denkhaus/rancher-meta-templates/scratch"
+	"github.com/denkhaus/rancher-meta-template/scratch"
 	"github.com/juju/errors"
 
 	"github.com/davecgh/go-spew/spew"

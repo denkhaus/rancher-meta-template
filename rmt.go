@@ -12,7 +12,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/denkhaus/rancher-meta-templates/scratch"
+	"github.com/denkhaus/rancher-meta-template/scratch"
 	"github.com/juju/errors"
 	"github.com/rancher/go-rancher-metadata/metadata"
 	"gopkg.in/pipe.v2"
