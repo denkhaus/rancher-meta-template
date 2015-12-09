@@ -182,7 +182,10 @@ func processTemplateSet(meta *metadata.Client, set TemplateSet) error {
 func processTemplates(cnf *Config) error {
 
 	apiURL := fmt.Sprintf("%s%s", cnf.Host, cnf.Prefix)
-	meta := metadata.NewClient(apiURL)
+	meta, err := metadata.NewClientAndWait(apiURL)
+	if err != nil {
+		return errors.Annotate(err, "get meta client")
+	}
 
 	printInfo("connect rancher metadata url: %q", apiURL)
 

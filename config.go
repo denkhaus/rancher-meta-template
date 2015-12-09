@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/BurntSushi/toml"
+	"github.com/codegangsta/cli"
 	"github.com/juju/errors"
 )
 
@@ -58,6 +59,36 @@ func (cnf *Config) Check() error {
 	}
 
 	return nil
+}
+
+//////////////////////////////////////////////////////////////////////////////
+func NewConfigFromCtx(ctx *cli.Context) (*Config, error) {
+	templatePath := ctx.String("template")
+	destinationPath := ctx.String("destination")
+
+	if templatePath == "" {
+		return nil, errors.New("no template path provided")
+	}
+
+	if destinationPath == "" {
+		return nil, errors.New("no destination path provided")
+	}
+
+	cnf := new(Config)
+	cnf.Repeat = ctx.Int("repeat")
+	cnf.Host = ctx.String("host")
+	cnf.Prefix = ctx.String("prefix")
+	cnf.User = ctx.String("user")
+	cnf.Group = ctx.String("group")
+	cnf.LogLevel = ctx.String("loglevel")
+	cnf.Sets = make([]TemplateSet, 0)
+
+	cnf.Sets = append(cnf.Sets, TemplateSet{
+		TemplatePath:    templatePath,
+		DestinationPath: destinationPath,
+	})
+
+	return cnf, nil
 }
 
 //////////////////////////////////////////////////////////////////////////////
