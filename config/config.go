@@ -37,12 +37,12 @@ type Config struct {
 
 //////////////////////////////////////////////////////////////////////////////
 func (cnf *Config) Print() {
-	logging.PrintInfo("check every %d seconds", cnf.Repeat)
-	logging.PrintInfo("metadata host: %s", cnf.Host)
-	logging.PrintInfo("prefix is: %s", cnf.Prefix)
-	logging.PrintInfo("loglevel is: %s", cnf.LogLevel)
-	logging.PrintInfo("run as %s:%s", cnf.User, cnf.Group)
-	logging.PrintInfo(" %d template sets found", len(cnf.Sets))
+	logging.Info("check every %d seconds", cnf.Repeat)
+	logging.Info("metadata host: %s", cnf.Host)
+	logging.Info("prefix is: %s", cnf.Prefix)
+	logging.Info("loglevel is: %s", cnf.LogLevel)
+	logging.Info("run as %s:%s", cnf.User, cnf.Group)
+	logging.Info(" %d template sets found", len(cnf.Sets))
 }
 
 //////////////////////////////////////////////////////////////////////////////

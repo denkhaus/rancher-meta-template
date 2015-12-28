@@ -17,26 +17,26 @@ func SetLogLevel(level string) error {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-func PrintTmplError(format string, args ...interface{}) {
+func TmplError(format string, args ...interface{}) {
 	log.WithField("ctx", "template").Errorf(format, args...)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-func PrintError(err error) {
+func Error(err error) {
 	log.Errorf(errors.ErrorStack(err))
 }
 
 //////////////////////////////////////////////////////////////////////////////
-func PrintInfo(format string, args ...interface{}) {
+func Info(format string, args ...interface{}) {
 	log.Infof(format, args...)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-func PrintDebug(format string, args ...interface{}) {
+func Debug(format string, args ...interface{}) {
 	log.Debugf(format, args...)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-func PrintWarning(format string, args ...interface{}) {
+func Warning(format string, args ...interface{}) {
 	log.Warningf(format, args...)
 }

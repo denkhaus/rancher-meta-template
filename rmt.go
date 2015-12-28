@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/denkhaus/rancher-meta-template/config"
+	"github.com/denkhaus/rancher-meta-template/logging"
 	"github.com/denkhaus/rancher-meta-template/scratch"
 	"github.com/juju/errors"
 	"github.com/rancher/go-rancher-metadata/metadata"
@@ -91,7 +92,7 @@ func appendCommandPipe(cmd config.Command, pipes []pipe.Pipe) []pipe.Pipe {
 func processTemplateSet(meta *metadata.Client, set config.TemplateSet) error {
 
 	if _, err := os.Stat(set.TemplatePath); err != nil {
-		printWarning("template path %q is not available: skip", set.TemplatePath)
+		logging.Warning("template path %q is not available: skip", set.TemplatePath)
 		return nil
 	}
 
@@ -139,11 +140,11 @@ func processTemplateSet(meta *metadata.Client, set config.TemplateSet) error {
 	}
 
 	if lastMd5 == "" {
-		printInfo("create output file")
+		logging.Info("create output file")
 	} else {
-		printInfo("last md5 sum is %q", lastMd5)
-		printInfo("current md5 sum is %q", currentMd5)
-		printInfo("output file needs refresh")
+		logging.Info("last md5 sum is %q", lastMd5)
+		logging.Info("current md5 sum is %q", currentMd5)
+		logging.Info("output file needs refresh")
 	}
 
 	f, err := os.Create(set.DestinationPath)
@@ -164,7 +165,7 @@ func processTemplateSet(meta *metadata.Client, set config.TemplateSet) error {
 		return errors.Annotate(err, "outfile close")
 	}
 
-	printInfo("process check & run")
+	logging.Info("process check & generate")
 
 	pipes := make([]pipe.Pipe, 0)
 	pipes = appendCommandPipe(set.Check, pipes)
@@ -172,7 +173,7 @@ func processTemplateSet(meta *metadata.Client, set config.TemplateSet) error {
 
 	script := pipe.Script(pipes...)
 	if output, err := pipe.CombinedOutput(script); err != nil {
-		printInfo(string(output))
+		logging.Info(string(output))
 		return errors.Annotate(err, "check & run")
 	}
 
@@ -182,16 +183,16 @@ func processTemplateSet(meta *metadata.Client, set config.TemplateSet) error {
 //////////////////////////////////////////////////////////////////////////////////
 func processTemplates(cnf *config.Config) error {
 
-	apiURL := fmt.Sprintf("%s%s", cnf.Host, cnf.Prefix)
+	apiURL := cnf.Host + cnf.Prefix
 	meta, err := metadata.NewClientAndWait(apiURL)
 	if err != nil {
 		return errors.Annotate(err, "get meta client")
 	}
 
-	printInfo("connect rancher metadata url: %q", apiURL)
+	logging.Info("connect rancher metadata url: %q", apiURL)
 
 	//expand template paths
-	printDebug("expand template paths")
+	logging.Debug("expand template paths")
 	for idx, set := range cnf.Sets {
 		if !path.IsAbs(set.TemplatePath) {
 			cnf.Sets[idx].TemplatePath = path.Join(DEFAULT_TEMPLATE_DIR, set.TemplatePath)
@@ -211,7 +212,7 @@ func processTemplates(cnf *config.Config) error {
 		}
 
 		version = newVersion
-		printInfo("metadata changed - refresh config")
+		logging.Info("metadata changed - refresh config")
 
 		for _, set := range cnf.Sets {
 			scratch.Reset()

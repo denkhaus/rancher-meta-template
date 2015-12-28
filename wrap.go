@@ -3,6 +3,7 @@ package main
 import (
 	"strings"
 
+	"github.com/denkhaus/rancher-meta-template/logging"
 	"github.com/juju/errors"
 
 	"github.com/rancher/go-rancher-metadata/metadata"
@@ -33,7 +34,7 @@ func (p ContainerWrap) PortInternal(idx int) (string, error) {
 		return part, nil
 	}
 
-	printDebug(part)
+	logging.Debug(part)
 	items := strings.Split(part, ":")
 	part = items[len(items)-1]
 	if strings.Contains(part, "/") {
@@ -50,7 +51,7 @@ func (p ContainerWrap) LabelByKey(key string) (string, error) {
 		return val, nil
 	}
 
-	printDebug("LabelByKey:: container: %s: key %q is not present", p.Name, key)
+	logging.Debug("LabelByKey:: container: %s: key %q is not present", p.Name, key)
 	return "", nil
 }
 

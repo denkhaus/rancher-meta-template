@@ -32,15 +32,15 @@ func main() {
 				cli.StringFlag{Name: "loglevel, l", Value: "warning", Usage: "the loglevel", EnvVar: "RANCHER_META_LOGLEVEL"},
 			},
 			Action: func(ctx *cli.Context) {
-				printInfo("startup")
+				logging.Info("startup")
 
 				var cnf *config.Config
 				cnf, _ = config.NewFromFile(ctx.String("config"))
 				if cnf == nil {
-					logging.PrintWarning("config file not found, get config from cli context")
+					logging.Warning("config file not found, get config from cli context")
 					c, err := config.NewFromCtx(ctx)
 					if err != nil {
-						logging.PrintError(errors.Annotate(err, "new config from context"))
+						logging.Error(errors.Annotate(err, "new config from context"))
 						return
 					}
 					cnf = c
@@ -51,17 +51,17 @@ func main() {
 
 				cnf.Print()
 				if err := cnf.Validate(); err != nil {
-					logging.PrintError(errors.Annotate(err, "validate config"))
+					logging.Error(errors.Annotate(err, "validate config"))
 					return
 				}
 
-				if err := setLogLevel(cnf.LogLevel); err != nil {
-					logging.PrintError(errors.Annotate(err, "set log level"))
+				if err := logging.SetLogLevel(cnf.LogLevel); err != nil {
+					logging.Error(errors.Annotate(err, "set log level"))
 					return
 				}
 
 				if err := processTemplates(cnf); err != nil {
-					logging.PrintError(errors.Annotate(err, "process templates"))
+					logging.Error(errors.Annotate(err, "process templates"))
 				}
 			},
 		},
