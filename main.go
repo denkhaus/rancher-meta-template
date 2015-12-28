@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/codegangsta/cli"
+	"github.com/denkhaus/rancher-meta-template/config"
+	"github.com/denkhaus/rancher-meta-template/logging"
 	"github.com/juju/errors"
 )
 
@@ -33,57 +34,34 @@ func main() {
 			Action: func(ctx *cli.Context) {
 				printInfo("startup")
 
-				cnf, err := readConfig(ctx.String("config"))
-				if err != nil {
-					printError(errors.Annotate(err, "read config"))
-					return
-				}
-
+				var cnf *config.Config
+				cnf, _ = config.NewFromFile(ctx.String("config"))
 				if cnf == nil {
-					cnf, err = NewConfigFromCtx(ctx)
+					logging.PrintWarning("config file not found, get config from cli context")
+					c, err := config.NewFromCtx(ctx)
 					if err != nil {
-						printError(errors.Annotate(err, "new config from context"))
+						logging.PrintError(errors.Annotate(err, "new config from context"))
 						return
 					}
-				} else {
-					if cnf.Repeat == 0 || ctx.IsSet("repeat") {
-						cnf.Repeat = ctx.Int("repeat")
-					}
-					if cnf.Host == "" || ctx.IsSet("host") {
-						cnf.Host = ctx.String("host")
-					}
-					if cnf.Prefix == "" || ctx.IsSet("prefix") {
-						cnf.Host = ctx.String("prefix")
-					}
-					if cnf.User == "" || ctx.IsSet("user") {
-						cnf.User = ctx.String("user")
-					}
-					if cnf.Group == "" || ctx.IsSet("group") {
-						cnf.Group = ctx.String("group")
-					}
-					if cnf.LogLevel == "" || ctx.IsSet("loglevel") {
-						cnf.LogLevel = ctx.String("loglevel")
-					}
-				}
+					cnf = c
 
-				if !govalidator.IsRequestURL(cnf.Host) {
-					printError(errors.New("provide a valid host url"))
-					return
+				} else {
+					cnf.OverrideFromCtx(ctx)
 				}
 
 				cnf.Print()
-				if err := cnf.Check(); err != nil {
-					printError(errors.Annotate(err, "check config"))
+				if err := cnf.Validate(); err != nil {
+					logging.PrintError(errors.Annotate(err, "validate config"))
 					return
 				}
 
 				if err := setLogLevel(cnf.LogLevel); err != nil {
-					printError(errors.Annotate(err, "set log level"))
+					logging.PrintError(errors.Annotate(err, "set log level"))
 					return
 				}
 
 				if err := processTemplates(cnf); err != nil {
-					printError(errors.Annotate(err, "process templates"))
+					logging.PrintError(errors.Annotate(err, "process templates"))
 				}
 			},
 		},

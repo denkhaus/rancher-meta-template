@@ -12,6 +12,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/denkhaus/rancher-meta-template/config"
 	"github.com/denkhaus/rancher-meta-template/scratch"
 	"github.com/juju/errors"
 	"github.com/rancher/go-rancher-metadata/metadata"
@@ -75,7 +76,7 @@ func computeMd5(filePath string) (string, error) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-func appendCommandPipe(cmd Command, pipes []pipe.Pipe) []pipe.Pipe {
+func appendCommandPipe(cmd config.Command, pipes []pipe.Pipe) []pipe.Pipe {
 	if cmd.Cmd != "" {
 		if cmd.Args != nil {
 			return append(pipes, pipe.Exec(cmd.Cmd, cmd.Args...))
@@ -87,7 +88,7 @@ func appendCommandPipe(cmd Command, pipes []pipe.Pipe) []pipe.Pipe {
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-func processTemplateSet(meta *metadata.Client, set TemplateSet) error {
+func processTemplateSet(meta *metadata.Client, set config.TemplateSet) error {
 
 	if _, err := os.Stat(set.TemplatePath); err != nil {
 		printWarning("template path %q is not available: skip", set.TemplatePath)
@@ -179,7 +180,7 @@ func processTemplateSet(meta *metadata.Client, set TemplateSet) error {
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-func processTemplates(cnf *Config) error {
+func processTemplates(cnf *config.Config) error {
 
 	apiURL := fmt.Sprintf("%s%s", cnf.Host, cnf.Prefix)
 	meta, err := metadata.NewClientAndWait(apiURL)
